@@ -7,6 +7,7 @@
 #include <Encoder.h>
 #include <ros.h>
 #include <std_msgs/UInt16.h>
+#include <std_msgs/Float32.h>
 #include <geometry_msgs/Twist.h>
 
 ros::NodeHandle nh;
@@ -21,6 +22,18 @@ int in4 = 6;
 
 Encoder leftEncoder(2, 11);
 Encoder rightEncoder(3, 12);
+
+// ROS Callbacks
+void lmotor_cb( const std_msgs::Float32& cmd_msg){
+  analogWrite(enA, cmd_msg.data);
+}
+void rmotor_cb( const std_msgs::Float32& cmd_msg){
+  analogWrite(enB, cmd_msg.data);
+}
+
+// ROS Subscribers
+ros::Subscriber<std_msgs::Float32> lmotor_sub("lmotor_cmd", lmotor_cb);
+ros::Subscriber<std_msgs::Float32> rmotor_sub("rmotor_cmd", rmotor_cb);
 
 // ROS Publishers
 std_msgs::UInt16 lwheelData;
@@ -42,13 +55,15 @@ void setup()
   nh.initNode();
   nh.advertise(lwheel);
   nh.advertise(rwheel);
+  nh.subscribe(lmotor_sub);
+  nh.subscribe(rmotor_sub);
 
 }
 
 long positionLeft  = 0;
 long positionRight = 0;
 
-boolean stopMotors = true;
+boolean stopMotors = false;
 
 void loop()
 {
@@ -77,8 +92,6 @@ void loop()
   digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
-  analogWrite(enA, 100);
-  analogWrite(enB, 180);
 
   lwheelData.data = positionLeft;
   rwheelData.data = positionRight;
