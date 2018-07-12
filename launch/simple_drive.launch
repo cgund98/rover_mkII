@@ -34,8 +34,11 @@
   </node>
 
   <!-- <node pkg="differential_drive" type="virtual_joystick.py" name="virtual_joystick" output="screen"/> -->
-  <!-- <node pkg="joy" type="joy_node" name="joystick_node" output="screen" /> -->
-  <!-- <node pkg="joy_to_cmd_vel" type="to_differential.py" name="joystick_converter" output="screen" /> -->
+  <node pkg="joy" type="joy_node" name="joystick_node" output="screen">
+      <rosparam param="deadzone">0.2</rosparam>
+      <rosparam param="autorepeat_rate">20</rosparam>
+  </node>
+  <node pkg="joy_to_cmd_vel" type="to_differential.py" name="joystick_converter" output="screen" />
   <node pkg="differential_drive" type="twist_to_motors.py" name="twist_to_motors" output="screen">
     <rosparam param="base_width">0.25</rosparam>
   </node>
