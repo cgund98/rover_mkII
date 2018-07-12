@@ -6,7 +6,7 @@
 
 #include <Encoder.h>
 #include <ros.h>
-#include <std_msgs/UInt16.h>
+#include <std_msgs/Int16.h>
 #include <std_msgs/Float32.h>
 #include <geometry_msgs/Twist.h>
 
@@ -25,10 +25,26 @@ Encoder rightEncoder(3, 12);
 
 // ROS Callbacks
 void lmotor_cb( const std_msgs::Float32& cmd_msg){
-  analogWrite(enA, cmd_msg.data);
+    float cmd;
+    if (cmd_msg.data < 0) {
+        cmd = -cmd_msg.data;
+        setLeftBackward();
+    } else {
+        cmd = cmd_msg.data;
+        setLeftForward();
+    }
+    analogWrite(enA, cmd);
 }
 void rmotor_cb( const std_msgs::Float32& cmd_msg){
-  analogWrite(enB, cmd_msg.data);
+    float cmd;
+    if (cmd_msg.data < 0) {
+        cmd = -cmd_msg.data;
+        setRightBackward();
+    } else {
+        cmd = cmd_msg.data;
+        setRightForward();
+    }
+    analogWrite(enB, cmd);
 }
 
 // ROS Subscribers
@@ -36,8 +52,8 @@ ros::Subscriber<std_msgs::Float32> lmotor_sub("lmotor_cmd", lmotor_cb);
 ros::Subscriber<std_msgs::Float32> rmotor_sub("rmotor_cmd", rmotor_cb);
 
 // ROS Publishers
-std_msgs::UInt16 lwheelData;
-std_msgs::UInt16 rwheelData;
+std_msgs::Int16 lwheelData;
+std_msgs::Int16 rwheelData;
 ros::Publisher lwheel("lwheel", &lwheelData);
 ros::Publisher rwheel("rwheel", &rwheelData);
 
@@ -65,6 +81,26 @@ long positionRight = 0;
 
 boolean stopMotors = false;
 
+void setLeftForward() {
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+}
+
+void setRightForward() {
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
+}
+
+void setLeftBackward() {
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
+}
+
+void setRightBackward() {
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, HIGH);
+}
+
 void loop()
 {
   long newLeft, newRight;
@@ -88,10 +124,6 @@ void loop()
   //   rightEncoder.write(0);
   // }
   //
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
 
   lwheelData.data = positionLeft;
   rwheelData.data = positionRight;
