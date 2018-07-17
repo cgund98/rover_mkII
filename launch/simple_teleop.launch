@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node pkg="joy" type="joy_node" name="joystick_node" output="screen">
+        <rosparam param="deadzone">0.2</rosparam>
+        <rosparam param="autorepeat_rate">20</rosparam>
+    </node>
+    <node pkg="joy_to_cmd_vel" type="to_differential.py" name="joystick_converter" output="screen" />
+</launch>
